@@ -49,26 +49,39 @@ app.post('/helloworld', (req, res) => {
 })
 
 app.post('/', (req, res) => {
-    let newdata = "free food in ";
     var nalist = [];
-    let needsList = ["free food in ", "free wifi in ", "homeless shelters in ", "places to shower in "];
-    //for(var j = 0; j < needsList.length; j++) {
-        var config = {
-            method: 'get',
-            url: `https://maps.googleapis.com/maps/api/place/textsearch/json?query=${needsList[1]}${req.body.zipcode}&key=${key}`,
-            headers: { }
-        };
-        axios(config)
-        .then(function (response) {
-            for(var i = 0; i < 3; i++) {
-                nalist.push({name: response.data.results[i].name, address: response.data.results[i].formatted_address})
-            }
-            res.send(nalist);
-        })
-        .catch(function (error) {
-            res.send(error);
-        });
-    //}
+    var needsListIndex;
+    var needsList = ["free wifi in ", "homeless shelters in ", "places to shower in ", "free food in "];
+    
+    if(req.body.need == 'wifi') {
+        needsListIndex = 0;
+    }
+    if(req.body.need == 'shelter') {
+        needsListIndex = 1;
+    }
+    if(req.body.need == 'shower') {
+        needsListIndex = 2;
+    }
+    if(req.body.need == 'food') {
+        needsListIndex = 3;
+    }
+
+    var config = {
+        method: 'get',
+        url: `https://maps.googleapis.com/maps/api/place/textsearch/json?query=${needsList[needsListIndex]}${req.body.zipcode}&key=${key}`,
+        headers: { }
+    };
+
+    axios(config)
+    .then(function (response) {
+        for(var i = 0; i < 3; i++) {
+            nalist.push({name: response.data.results[i].name, address: response.data.results[i].formatted_address})
+        }
+        res.send(nalist);
+    })
+    .catch(function (error) {
+        res.send(error);
+    });
 })
 
 app.listen(port, () => {
